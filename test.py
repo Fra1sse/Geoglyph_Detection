@@ -7,7 +7,7 @@ from torchvision.models import resnet50
 from PIL import Image, ImageFilter, ImageDraw
 import matplotlib.pyplot as plt
 
-# Установим константы
+
 IMG_SIZE = 112  # Размер изображения 112x112 пикселей
 STEP_SIZE = 50  # Шаг для разбиения изображений
 IMGNET_MEAN = [0.485, 0.456, 0.406]
@@ -20,7 +20,6 @@ transform = transforms.Compose([
 ])
 
 def preprocess_test_image(image_path):
-    """Обработка изображения: усиление резкости и нормализация."""
     img = Image.open(image_path).convert("RGB")
     img = img.filter(ImageFilter.SHARPEN).filter(ImageFilter.SHARPEN)
     img = np.array(img) / 255.0  # Scale to [0, 1]
@@ -28,7 +27,6 @@ def preprocess_test_image(image_path):
     return img
 
 def split_image(image_path, step_size):
-    """Разделение изображения на фрагменты с шагом step_size."""
     image = Image.open(image_path).convert("RGB")
     img_width, img_height = image.size
     patches = []
@@ -38,17 +36,16 @@ def split_image(image_path, step_size):
             patch = image.crop((x, y, x + IMG_SIZE, y + IMG_SIZE))
             patch = np.array(patch) / 255.0  # Нормализация
             patch = (patch - IMGNET_MEAN) / IMGNET_STD
-            patch = torch.tensor(patch).permute(2, 0, 1).float()  # Преобразуем в тензор
+            patch = torch.tensor(patch).permute(2, 0, 1).float()  
             patches.append(patch)
-            patch_coords.append((x, y, x + IMG_SIZE, y + IMG_SIZE))  # Сохраняем координаты
+            patch_coords.append((x, y, x + IMG_SIZE, y + IMG_SIZE)) 
     return torch.stack(patches), patch_coords, image
 
 # Загрузка модели
 def load_model(model_path):
-    """Загрузка модели с учетом её структуры."""
     model = resnet50(pretrained=False)
     num_features = model.fc.in_features
-    # Воспроизводим структуру модели, которая была сохранена
+    # Воспроизводим структуру модели
     model.fc = nn.Sequential(
         nn.Linear(num_features, 512),
         nn.ReLU(),
@@ -57,7 +54,7 @@ def load_model(model_path):
         nn.ReLU(),
         nn.Dropout(0.5),
         nn.Linear(128, 1),
-        nn.Sigmoid()  # т.к. бинарная классификация
+        nn.Sigmoid()  
     )
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
@@ -69,7 +66,7 @@ def predict_geoglyphs(model, test_images, device):
     model.to(device)
     test_images = test_images.to(device)
     with torch.no_grad():
-        predictions = model(test_images).squeeze(1)  # Убираем лишнюю размерность
+        predictions = model(test_images).squeeze(1)  
     candidates = [i for i, pred in enumerate(predictions.cpu().numpy()) if pred > 0.55]
     return candidates
 
