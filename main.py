@@ -280,5 +280,5 @@ if __name__ == "__main__":
     trained_model = train_model(X, y)
 
     # Сохранение обученной модели
-    torch.save(trained_model.state_dict(), "nazca_model_3.pth")
-    print("Модель успешно сохранена в nazca_model_3.pth")
+    torch.save(trained_model.state_dict(), "nazca_model.pth")
+    print("Модель успешно сохранена в nazca_model.pth")

@@ -88,7 +88,7 @@ def visualize_results(image, patch_coords, candidates):
 # Использование
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = load_model("nazca_model_3.pth")
+    model = load_model("nazca_model.pth")
     
     test_image_path = "test_1.jpg"
     test_patches, patch_coords, original_image = split_image(test_image_path, STEP_SIZE)
